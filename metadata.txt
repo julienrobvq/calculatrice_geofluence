@@ -1,0 +1,8 @@
+[general]
+name=Calculatrice Geofluence
+qgisMinimumVersion=3.0
+description=Update des default value
+version=0.1
+author=Julien Tremblay
+email=julien@robvq.qc.ca
+about=Mise à jour automatique des valeurs par défaut des formulaires de Géofluence
