@@ -6,7 +6,7 @@ from qgis.core import (
     QgsFeature 
 )
 from qgis.PyQt.QtWidgets import (
-    QDialog, QVBoxLayout, QPushButton, QMessageBox, QAction, QToolBar, QCheckBox, QLabel
+    QDialog, QVBoxLayout, QPushButton, QMessageBox, QAction, QToolBar, QCheckBox, QLabel, QScrollArea, QWidget
 )
 from qgis.utils import iface
 
@@ -139,19 +139,32 @@ class LayerSelectionDialog(QDialog):
         super().__init__()
         self.setWindowTitle("Sélectionner une couche")
         self.setFixedWidth(400)
-        self.layout = QVBoxLayout(self)
+        # Hauteur maximale avant que le scroll s'active
+        self.setMaximumHeight(500)
+
+        outer_layout = QVBoxLayout(self)
+
+        # QScrollArea contient un widget interne qui recoit les checkboxes
+        scroll_area = QScrollArea(self)
+        scroll_area.setWidgetResizable(True)
+
+        inner_widget = QWidget()
+        inner_layout = QVBoxLayout(inner_widget)
 
         self.checkboxes = []
-
         for layer in layers:
-            cb = QCheckBox(layer.name(), self)
+            cb = QCheckBox(layer.name(), inner_widget)
             cb.stateChanged.connect(self.on_state_changed)
-            self.layout.addWidget(cb)
+            inner_layout.addWidget(cb)
             self.checkboxes.append(cb)
-        
+
+        scroll_area.setWidget(inner_widget)
+        outer_layout.addWidget(scroll_area)
+
         self.button = QPushButton("OK", self)
         self.button.clicked.connect(self.accept)
-        self.layout.addWidget(self.button)
+        # Le bouton est hors du scroll, toujours visible en bas
+        outer_layout.addWidget(self.button)
 
     def on_state_changed(self, state):
         if state == Qt.Checked:
