@@ -33,7 +33,7 @@ class CalculatriceGeofluence:
         # liste des formulaire
         layers = [
             layer for layer in QgsProject.instance().mapLayers().values()
-            if layer.id().startswith("Form")
+            if layer.id().startswith("form")
         ]
         
         if not layers:
