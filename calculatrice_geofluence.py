@@ -30,7 +30,6 @@ class CalculatriceGeofluence:
         iface.addToolBarIcon(self.action)
 
     def run(self):
-        # liste des formulaire
         layers = [
             layer for layer in QgsProject.instance().mapLayers().values()
             if layer.id().startswith("form")
@@ -40,7 +39,6 @@ class CalculatriceGeofluence:
             QMessageBox.warning(None, "Calculatrice Géofluence", "Aucun formulaire Géofluence trouvé.")
             return
 
-        # sélection du formulaire
         layer_dialog = LayerSelectionDialog(layers)
         if layer_dialog.exec_() != QDialog.Accepted:
             return
@@ -50,10 +48,10 @@ class CalculatriceGeofluence:
             QMessageBox.warning(None, "Calculatrice Géofluence", "Aucune couche sélectionnée.")
             return
 
-        layer = next(l for l in layers if l.name() in selected_layer_names)
-
-        
-        self.process_layer(layer)
+        # Traitement de chaque couche sélectionnée
+        selected_layers = [l for l in layers if l.name() in selected_layer_names]
+        for layer in selected_layers:
+            self.process_layer(layer)
 
 
     def process_layer(self, layer):
@@ -139,12 +137,10 @@ class LayerSelectionDialog(QDialog):
         super().__init__()
         self.setWindowTitle("Sélectionner une couche")
         self.setFixedWidth(400)
-        # Hauteur maximale avant que le scroll s'active
         self.setMaximumHeight(500)
 
         outer_layout = QVBoxLayout(self)
 
-        # QScrollArea contient un widget interne qui recoit les checkboxes
         scroll_area = QScrollArea(self)
         scroll_area.setWidgetResizable(True)
 
@@ -154,7 +150,7 @@ class LayerSelectionDialog(QDialog):
         self.checkboxes = []
         for layer in layers:
             cb = QCheckBox(layer.name(), inner_widget)
-            cb.stateChanged.connect(self.on_state_changed)
+            # Aucune contrainte : plusieurs cases peuvent etre cochees simultanement
             inner_layout.addWidget(cb)
             self.checkboxes.append(cb)
 
@@ -163,14 +159,7 @@ class LayerSelectionDialog(QDialog):
 
         self.button = QPushButton("OK", self)
         self.button.clicked.connect(self.accept)
-        # Le bouton est hors du scroll, toujours visible en bas
         outer_layout.addWidget(self.button)
-
-    def on_state_changed(self, state):
-        if state == Qt.Checked:
-            for cb in self.checkboxes:
-                if cb != self.sender():
-                    cb.setChecked(False)
 
     def get_selected_layers(self):
         return [cb.text() for cb in self.checkboxes if cb.isChecked()]
